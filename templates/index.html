@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Setting document character encoding to UTF-8 for universal compatibility -->
+    <meta charset="UTF-8">
+    <!-- Making page responsive on all devices by setting viewport properties -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Setting the page title -->
+    <title>Recflix</title>
+    <!-- Including Bootstrap CSS for styling and layout components -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Linking custom CSS file for additional styling -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Linking Google Font 'Pacifico' for custom font usage -->
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <style>
+        /* Defining styles for fullscreen slideshow */
+        #image-slideshow {
+            position: fixed; /* Fixing position to cover the entire background */
+            top: 0;
+            left: 0;
+            width: 100vw; /* Setting width to full viewport width */
+            height: 100vh; /* Setting height to full viewport height */
+            overflow: hidden; /* Hiding overflow to maintain fullscreen effect */
+            z-index: -1; /* Sending slideshow behind other elements */
+        }
+
+        /* Styling for each image in the slideshow */
+        #image-slideshow img {
+            position: absolute; /* Positioning each image absolutely */
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover; /* Covering entire screen with each image */
+            opacity: 0; /* Setting initial opacity to 0 for fade effect */
+            transition: opacity 1s ease-in-out; /* Defining transition for opacity */
+        }
+
+        /* Setting active image to be fully visible */
+        #image-slideshow img.active {
+            opacity: 1;
+        }
+
+        /* Positioning and styling the search bar container */
+        .search-container {
+            position: relative;
+            z-index: 3; /* Placing search container above slideshow */
+            margin-top: 20px; /* Adding margin for positioning */
+            display: flex;
+            justify-content: flex-start;
+            padding-left: 30px;
+        }
+
+        /* Adjusting positioning of search form inside container */
+        #search-form {
+            margin-left: -300px;
+        }
+
+        /* Styling the Home button */
+        #home-button {
+            display: block; /* Displaying as block element */
+            margin-top: 10px;
+            margin-left: 30px; /* Aligning with the logo's left padding */
+        }
+
+        /* Hiding the movie section initially */
+        .movie-section {
+            display: none;
+            margin-top: 20px;
+        }
+
+        /* Styling individual movie cards */
+        .movie-card {
+            background-color: #444444; /* Setting background color */
+            color: white; /* Setting text color */
+            border: none;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+        }
+
+        /* Styling for no recommendations message */
+        .no-recommendations {
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Creating navbar for the logo and home button -->
+    <div class="navbar">
+        <div class="logo-container">
+            <div class="navbar-brand">
+                <!-- Displaying brand name letter by letter -->
+                <span class="letter">R</span>
+                <span class="letter">E</span>
+                <span class="letter">C</span>
+                <span class="letter">F</span>
+                <span class="letter">L</span>
+                <span class="letter">I</span>
+                <span class="letter">X</span>
+            </div>
+            
+            <!-- Adding Home Button for navigation -->
+            <a href="/" id="home-button" class="btn btn-light mt-2">Home</a>
+        </div>
+    </div>
+    
+    <!-- Adding fullscreen slideshow for background images -->
+    <div id="image-slideshow">
+        <!-- Displaying images for the slideshow with active image class on first image -->
+        <img src="{{ url_for('static', filename='backimages/img1.jpeg') }}" class="active" alt="Image 1">
+        <img src="{{ url_for('static', filename='backimages/img2.jpg') }}" alt="Image 2">
+        <img src="{{ url_for('static', filename='backimages/img3.jpeg') }}" alt="Image 3">
+        <img src="{{ url_for('static', filename='backimages/img4.jpg') }}" alt="Image 4">
+        <img src="{{ url_for('static', filename='backimages/img5.jpeg') }}" alt="Image 5">
+        <img src="{{ url_for('static', filename='backimages/img6.jpeg') }}" alt="Image 6">
+        <img src="{{ url_for('static', filename='backimages/img7.jpeg') }}" alt="Image 7">
+        <img src="{{ url_for('static', filename='backimages/img8.jpeg') }}" alt="Image 8">
+        <img src="{{ url_for('static', filename='backimages/img9.jpeg') }}" alt="Image 9">
+        <img src="{{ url_for('static', filename='backimages/img10.jpg') }}" alt="Image 10">
+        <img src="{{ url_for('static', filename='backimages/img11.jpg') }}" alt="Image 11">
+        <img src="{{ url_for('static', filename='backimages/img12.jpeg') }}" alt="Image 12">
+        <img src="{{ url_for('static', filename='backimages/img13.jpeg') }}" alt="Image 13">
+        <img src="{{ url_for('static', filename='backimages/img14.jpeg') }}" alt="Image 14">
+        <img src="{{ url_for('static', filename='backimages/img15.jpeg') }}" alt="Image 15">
+        <img src="{{ url_for('static', filename='backimages/img16.jpeg') }}" alt="Image 16">
+        <img src="{{ url_for('static', filename='backimages/img17.jpeg') }}" alt="Image 17">
+        <img src="{{ url_for('static', filename='backimages/img18.jpeg') }}" alt="Image 18">
+    </div>
+
+    <!-- Container for search bar and recommendations display -->
+    <div class="container mt-4 d-flex">
+        <div class="search-container">
+            <!-- Adding search form for movie recommendations -->
+            <form id="search-form" class="form-inline justify-content-start">
+                <!-- Input field for entering keywords -->
+                <input type="text" id="movie-input" class="form-control mr-2" placeholder="Enter Keywords..." required>
+                <!-- Search button to submit form -->
+                <button type="submit" class="btn btn-light">Search</button>
+            </form>
+        </div>
+
+        <!-- Container for displaying movie recommendations -->
+        <div id="recommendations" class="recommendations-container ml-3">
+            <div class="row">
+                <!-- Placeholder for recommendation cards -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Adding Bootstrap JavaScript and dependencies for interactivity -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.6/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        const images = document.querySelectorAll('#image-slideshow img');
+        let currentIndex = 0;
+
+        // Function to show the next image in the slideshow
+        function showNextImage() {
+            images[currentIndex].classList.remove('active');
+            currentIndex = (currentIndex + 1) % images.length;
+            images[currentIndex].classList.add('active');
+        }
+
+        // Setting interval for image change every 3 seconds
+        setInterval(showNextImage, 3000);
+
+        // Getting form and recommendations div elements
+        const form = document.getElementById('search-form');
+        const recommendationsDiv = document.getElementById('recommendations');
+
+        // Adding event listener to handle form submission
+        form.addEventListener('submit', async function(event) {
+            event.preventDefault(); // Preventing default form submission
+            const movieTitle = document.getElementById('movie-input').value;
+
+            // Fetching recommendations from the server
+            const response = await fetch(`/recommend?title=${encodeURIComponent(movieTitle)}`);
+            const recommendations = await response.json();
+
+            // Clearing any previous recommendations
+            recommendationsDiv.innerHTML = '';
+
+            // Checking if recommendations are available
+            if (Array.isArray(recommendations) && recommendations.length > 0) {
+                recommendations.forEach(movie => {
+                    // Creating a column div for each movie recommendation
+                    const colDiv = document.createElement('div');
+                    colDiv.className = 'col-md-3 mb-3';
+
+                    // Setting HTML for the movie card with poster, title, and details
+                    colDiv.innerHTML = `
+                        <div class="card">
+                            <img src="${movie.poster_url}" class="card-img-top" alt="${movie.title}">
+                            <div class="card-body">
+                                <h5 class="card-title">${movie.title}</h5>
+                                <p class="card-text">${movie.overview}</p>
+                                <p><strong>Rating:</strong> ${movie.rating}</p>
+                                <p><strong>Popularity:</strong> ${movie.popularity}</p>
+                                <p><strong>Release Date:</strong> ${movie.release_date}</p>
+                            </div>
+                        </div>`;
+                    recommendationsDiv.appendChild(colDiv);
+                });
+            } else {
+                recommendationsDiv.innerHTML = '<p class="no-recommendations">No recommendations found.</p>';
+            }
+        });
+    </script>
+</body>
+</html>
